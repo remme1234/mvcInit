@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="egovframework.example.hanq.service.impl.HanqMapper">
+
+	<select id="selectHanqTableList" resultType="egovMap">
+		SELECT  SEQ_NO
+			   ,USER_NAME
+			   ,AGE
+			   ,COUNTRY
+			   ,ETC
+		FROM	WELCOME_WEB
+	</select>
+	
+<!--
+	1. 파이차트를 구성하기 위해서 나라별 인원 수를 나타내는 정보를 가져와야 한다.
+	2. 원하는 정보인 나라별 인원 수를 위해서 먼저 FROM절에 서브쿼리를 이용하여 COUNTRY로 그룹 진 A라는 임의의 테이블을 만들어 준다.
+	3. 이후  본 쿼리에서는 전체 나라의 개수와 나라별 인원의 수를 나누어 각 나라에 대한 인원 수에 대한 비율을 가져온다.
+	4. 본 쿼리에서 ROUND를 쓴 이유는 결과값을 반올림 한 값으로 나타내기 위해서 사용했다.
+	5. 3번에서 가져온 각각의 나라에 대한 인원수의 비율은 파이차트를 구성하기 위한 정보로 이용한다.
+-->
+	<select id="selectHanqPieList" resultType="egovMap">
+      SELECT ROUND(A.CNT/(SELECT count(*) AS TOTCNT 
+                     		FROM welcome_web)*100) AS PERCENT
+          , COUNTRY  
+      FROM (SELECT count(COUNTRY) AS CNT
+      			  ,COUNTRY 
+            FROM   WELCOME_WEB
+			GROUP BY COUNTRY) AS A   
+ 	 </select>
+	
+</mapper>
